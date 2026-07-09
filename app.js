@@ -399,6 +399,21 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 });
 
 /* ══════════════════════════════════
+   BACK TO TOP BUTTON
+══════════════════════════════════ */
+const backToTopBtn = document.getElementById('backToTop');
+if (backToTopBtn) {
+  window.addEventListener('scroll', () => {
+    backToTopBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  backToTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  backToTopBtn.addEventListener('mouseenter', () => document.body.classList.add('cursor-on-link'));
+  backToTopBtn.addEventListener('mouseleave', () => document.body.classList.remove('cursor-on-link'));
+}
+
+/* ══════════════════════════════════
    CARD TILT EFFECT (subtle 3D)
 ══════════════════════════════════ */
 function initTiltCards() {
