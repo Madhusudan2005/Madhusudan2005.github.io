@@ -127,6 +127,13 @@ function animateCursor() {
   requestAnimationFrame(animateCursor);
 }
 
+/* Disable custom cursor on touch devices */
+if (window.matchMedia('(hover: none)').matches) {
+  if (cursorRing) cursorRing.style.display = 'none';
+  if (cursorDot)  cursorDot.style.display  = 'none';
+  document.body.style.cursor = 'auto';
+}
+
 document.querySelectorAll('a, button, .chip, .hl-row, .proj-card, .sp-node, .edu-card, .tl-card, .contact-item, .about-stat').forEach(el => {
   el.addEventListener('mouseenter', () => document.body.classList.add('cursor-on-link'));
   el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-on-link'));
@@ -225,6 +232,45 @@ function initRevealObserver() {
   document.querySelectorAll('.reveal-up, .reveal-left, .reveal-item').forEach(el => {
     observer.observe(el);
   });
+}
+
+/* ══════════════════════════════════
+   ANIMATED STAT COUNTERS
+══════════════════════════════════ */
+function animateCounter(el, target, suffix, duration) {
+  const isDecimal = String(target).includes('.');
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start += step;
+    if (start >= target) {
+      start = target;
+      clearInterval(timer);
+    }
+    el.textContent = (isDecimal ? start.toFixed(1) : Math.floor(start)) + suffix;
+  }, 16);
+}
+
+function initCounters() {
+  const counters = [
+    { selector: '.about-stat:nth-child(1) .as-n', target: 5, suffix: '+' },
+    { selector: '.about-stat:nth-child(2) .as-n', target: 5, suffix: '' },
+    { selector: '.about-stat:nth-child(3) .as-n', target: 2, suffix: '' },
+    { selector: '.about-stat:nth-child(4) .as-n', target: 2027, suffix: '' },
+  ];
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        counters.forEach(c => {
+          const el = document.querySelector(c.selector);
+          if (el) animateCounter(el, c.target, c.suffix, 1200);
+        });
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.5 });
+  const aboutStats = document.querySelector('.about-stats');
+  if (aboutStats) observer.observe(aboutStats);
 }
 
 /* ══════════════════════════════════
@@ -446,6 +492,7 @@ window.addEventListener('DOMContentLoaded', () => {
         animateHeroIn();
         initRevealObserver();
         initTiltCards();
+        initCounters();
         setTimeout(runTyped, 800);
       });
     });
