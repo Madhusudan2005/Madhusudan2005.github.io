@@ -98,13 +98,111 @@ function animateParticles() {
   g2.addColorStop(1, 'rgba(0,0,0,0)');
   nCtx.fillStyle = g2; nCtx.fillRect(0, 0, pW, pH);
 
+  const g3 = nCtx.createRadialGradient(pW * .5, pH * .85, 0, pW * .5, pH * .85, pW * .25);
+  g3.addColorStop(0, `rgba(0,180,100,${0.02 + 0.01 * Math.sin(t * .15 + 2)})`);
+  g3.addColorStop(1, 'rgba(0,0,0,0)');
+  nCtx.fillStyle = g3; nCtx.fillRect(0, 0, pW, pH);
+
   requestAnimationFrame(animateParticles);
 }
 
 window.addEventListener('resize', () => {
   resizeParticles();
   createParticles();
+  resizeNeural();
+  createNodes();
 });
+
+/* ══════════════════════════════════
+   NEURAL NETWORK CANVAS
+══════════════════════════════════ */
+const nCanvas = document.getElementById('neuralCanvas');
+const nCtx2   = nCanvas.getContext('2d');
+let nodes = [];
+let nW, nH;
+
+function resizeNeural() {
+  nW = nCanvas.width  = window.innerWidth;
+  nH = nCanvas.height = window.innerHeight;
+}
+
+function createNodes() {
+  nodes = [];
+  const count = Math.min(Math.floor((nW * nH) / 22000), 55);
+  for (let i = 0; i < count; i++) {
+    nodes.push({
+      x: Math.random() * nW,
+      y: Math.random() * nH,
+      vx: (Math.random() - 0.5) * 0.28,
+      vy: (Math.random() - 0.5) * 0.28,
+      r: Math.random() * 2.2 + 1.2,
+      phase: Math.random() * Math.PI * 2,
+      speed: Math.random() * 0.008 + 0.004,
+      color: Math.random() < 0.6 ? [0,200,255] : Math.random() < 0.5 ? [168,85,247] : [0,255,136],
+    });
+  }
+}
+
+const MAX_DIST = 200;
+
+function animateNeural() {
+  nCtx2.clearRect(0, 0, nW, nH);
+  const t = performance.now() * 0.001;
+
+  // Move nodes
+  nodes.forEach(n => {
+    n.phase += n.speed;
+    n.x += n.vx + Math.sin(n.phase * 0.7) * 0.12;
+    n.y += n.vy + Math.cos(n.phase * 0.5) * 0.12;
+    if (n.x < 0)  n.x = nW;
+    if (n.x > nW) n.x = 0;
+    if (n.y < 0)  n.y = nH;
+    if (n.y > nH) n.y = 0;
+  });
+
+  // Draw connections
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const a = nodes[i], b = nodes[j];
+      const dx = a.x - b.x, dy = a.y - b.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < MAX_DIST) {
+        const alpha = (1 - dist / MAX_DIST) * 0.22;
+        const pulse = 0.5 + 0.5 * Math.sin(t * 1.4 + i * 0.3 + j * 0.2);
+        nCtx2.beginPath();
+        nCtx2.moveTo(a.x, a.y);
+        nCtx2.lineTo(b.x, b.y);
+        nCtx2.strokeStyle = `rgba(${a.color[0]},${a.color[1]},${a.color[2]},${alpha * pulse})`;
+        nCtx2.lineWidth = 0.7;
+        nCtx2.stroke();
+      }
+    }
+  }
+
+  // Draw nodes
+  nodes.forEach((n, i) => {
+    const pulse = 0.6 + 0.4 * Math.sin(t * 1.2 + n.phase);
+    const glow = nCtx2.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 5);
+    glow.addColorStop(0, `rgba(${n.color[0]},${n.color[1]},${n.color[2]},${0.7 * pulse})`);
+    glow.addColorStop(1, `rgba(${n.color[0]},${n.color[1]},${n.color[2]},0)`);
+    nCtx2.beginPath();
+    nCtx2.arc(n.x, n.y, n.r * 3.5, 0, Math.PI * 2);
+    nCtx2.fillStyle = glow;
+    nCtx2.fill();
+
+    nCtx2.beginPath();
+    nCtx2.arc(n.x, n.y, n.r * pulse, 0, Math.PI * 2);
+    nCtx2.fillStyle = `rgba(${n.color[0]},${n.color[1]},${n.color[2]},${0.9 * pulse})`;
+    nCtx2.fill();
+  });
+
+  requestAnimationFrame(animateNeural);
+}
+
+resizeNeural();
+createNodes();
+animateNeural();
+
 
 /* ══════════════════════════════════
    CUSTOM CURSOR
