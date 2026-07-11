@@ -868,3 +868,309 @@ body.cursor-on-link #cursorRing {
   .timeline { padding-left: 2.5rem; }
   #backToTop { bottom: 1rem; left: 1rem; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   PREMIUM ANIMATION UPGRADES v5.0
+   3D Tilt · Gradient Sweep · Clip-Path Reveals
+   Shimmer · Glow Trails · Floating Geometry
+════════════════════════════════════════════════════════ */
+
+/* ── SECTION TITLE GRADIENT SWEEP ── */
+.section-title {
+  background: linear-gradient(
+    120deg,
+    var(--text) 0%,
+    var(--neon) 30%,
+    var(--text) 50%,
+    var(--purple) 70%,
+    var(--text) 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleSweep 6s linear infinite;
+}
+@keyframes titleSweep {
+  0%   { background-position: 0% center; }
+  100% { background-position: 250% center; }
+}
+
+/* ── REVEAL-SCALE — third variant for cards ── */
+.reveal-scale {
+  opacity: 0;
+  transform: scale(.92) translateY(30px);
+  filter: blur(6px);
+  transition: opacity .9s var(--ease), transform .9s var(--ease), filter .9s var(--ease);
+  transition-delay: var(--d, 0s);
+  will-change: opacity, transform;
+}
+.reveal-scale.visible {
+  opacity: 1; transform: scale(1) translateY(0); filter: blur(0);
+}
+
+/* ── CLIP-PATH SECTION WIPE ── */
+.reveal-clip {
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transition: opacity .7s var(--ease), clip-path .9s var(--ease);
+  transition-delay: var(--d, 0s);
+}
+.reveal-clip.visible { opacity: 1; clip-path: inset(0 0% 0 0); }
+
+/* ── 3D TILT CARD ── */
+.tilt-card {
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+  transition: box-shadow .4s ease;
+}
+.tilt-card:hover { box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 40px rgba(0,200,255,.12); }
+.tilt-card .proj-card-glow { transition: opacity .3s ease; }
+
+/* ── SHIMMER SWEEP on chips ── */
+.sp-chip, .chip {
+  position: relative; overflow: hidden;
+}
+.sp-chip::after, .chip::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+  transform: skewX(-20deg);
+  transition: left .6s ease;
+}
+.sp-chip:hover::after, .chip:hover::after { left: 150%; }
+
+/* ── MAGNETIC BUTTON GLOW RING ── */
+.btn-primary, .btn-secondary {
+  position: relative; overflow: hidden;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(45deg, rgba(0,200,255,.2), rgba(168,85,247,.2), rgba(0,200,255,.2));
+  background-size: 200% 200%;
+  animation: btnGradShift 3s ease infinite;
+  opacity: 0; border-radius: inherit;
+  transition: opacity .3s ease;
+}
+.btn-primary:hover::before { opacity: 1; }
+@keyframes btnGradShift {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+
+/* ── GLOWING TIMELINE DRAW ── */
+.timeline::before {
+  background: linear-gradient(to bottom, var(--neon), var(--purple), transparent);
+  box-shadow: 0 0 8px var(--neon);
+  animation: timelineDraw 2s ease forwards;
+}
+@keyframes timelineDraw {
+  from { height: 0; }
+  to   { height: 100%; }
+}
+
+/* ── SECTION ENTRY SHIMMER LINE ── */
+.section-line {
+  animation: lineGrow .8s var(--ease) both;
+  transform-origin: left;
+}
+@keyframes lineGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ── FLOATING GEOMETRIC SCENE ELEMENTS ── */
+.geo-shape {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  animation: geoAppear 1s var(--ease) var(--gd, 0s) forwards,
+             geoFloat  var(--gs, 12s) ease-in-out var(--gd, 0s) infinite alternate;
+}
+@keyframes geoAppear {
+  to { opacity: var(--go, .06); }
+}
+@keyframes geoFloat {
+  0%   { transform: translate(0, 0) rotate(var(--gr, 0deg)); }
+  100% { transform: translate(var(--gtx, 20px), var(--gty, -20px)) rotate(var(--gr2, 30deg)); }
+}
+
+/* ── CARD BORDER GLOW PULSE ── */
+.proj-card {
+  position: relative;
+}
+.proj-card::after {
+  content: '';
+  position: absolute; inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(0,200,255,.0), rgba(168,85,247,.0));
+  z-index: -1;
+  transition: background .4s ease;
+  border-radius: 18px;
+}
+.proj-card:hover::after {
+  background: linear-gradient(135deg, rgba(0,200,255,.15), rgba(168,85,247,.15));
+}
+
+/* ── EDUCATION CARD SHIMMER BORDER ── */
+.edu-card {
+  position: relative; overflow: hidden;
+}
+.edu-card::before {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,200,255,.05), transparent);
+  transition: left .8s ease;
+}
+.edu-card:hover::before { left: 100%; }
+
+/* ── ABOUT STAT COUNTER GLOW ── */
+.about-stat .as-n {
+  transition: text-shadow .3s ease, transform .3s var(--ease-back);
+}
+.about-stat:hover .as-n {
+  text-shadow: 0 0 30px rgba(0,200,255,.9), 0 0 60px rgba(0,200,255,.5);
+  transform: scale(1.15);
+}
+
+/* ── HIGHLIGHT ROW SLIDE INDICATOR ── */
+.hl-row {
+  position: relative; overflow: hidden;
+}
+.hl-row::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0; background: rgba(0,200,255,.08);
+  transition: width .4s ease; border-radius: 0 4px 4px 0;
+}
+.hl-row:hover::before { width: 4px; }
+
+/* ── HERO CONTENT STAGGER ENTRANCE ── */
+.hero-content > * {
+  animation: heroStagger .8s var(--ease) both;
+  animation-delay: calc(var(--hi, 0) * 0.12s + 0.3s);
+}
+@keyframes heroStagger {
+  from { opacity: 0; transform: translateY(30px); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0);   }
+}
+
+/* ── NEON GLOW PULSE on active nav ── */
+.nav-link.active {
+  text-shadow: 0 0 12px rgba(0,200,255,.6);
+  animation: navPulse 2.5s ease-in-out infinite;
+}
+@keyframes navPulse {
+  0%,100% { text-shadow: 0 0 8px rgba(0,200,255,.4); }
+  50%     { text-shadow: 0 0 18px rgba(0,200,255,.9), 0 0 30px rgba(0,200,255,.4); }
+}
+
+/* ── FOOTER WAVE GRADIENT ── */
+footer::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon), var(--purple), var(--neon), transparent);
+  background-size: 200% 100%;
+  animation: footerWave 4s linear infinite;
+}
+@keyframes footerWave {
+  0%   { background-position: 0%   0%; }
+  100% { background-position: 200% 0%; }
+}
+footer { position: relative; overflow: hidden; }
+
+/* ── SCROLL PROGRESS RAINBOW ── */
+#scrollProgress {
+  background: linear-gradient(90deg, var(--neon), var(--purple), var(--orange), var(--green), var(--neon));
+  background-size: 300% 100%;
+  animation: progressRainbow 3s linear infinite;
+}
+@keyframes progressRainbow {
+  0%   { background-position: 0%   50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* ── SKILL NODE ICON SPIN ON HOVER ── */
+.sp-ico {
+  transition: transform .5s var(--ease-back), box-shadow .3s ease;
+}
+.sp-node:hover .sp-ico {
+  transform: rotate(15deg) scale(1.2);
+  box-shadow: 0 0 20px rgba(0,200,255,.3);
+}
+
+/* ── TIMELINE MARKER RIPPLE ── */
+.tl-pulse {
+  animation: tlRipple 2s ease-in-out infinite;
+}
+@keyframes tlRipple {
+  0%   { transform: scale(1);   opacity: .6; }
+  50%  { transform: scale(2.2); opacity: 0;  }
+  100% { transform: scale(1);   opacity: .6; }
+}
+
+/* ── CONTACT ITEM HOVER LIFT ── */
+.contact-item {
+  transition: all .35s var(--ease-back);
+}
+.contact-item:hover {
+  transform: translateX(8px) translateY(-2px);
+  box-shadow: -4px 4px 20px rgba(0,200,255,.1);
+}
+
+/* ── PROJECT TECH BADGE FLOAT ── */
+.proj-tech span {
+  transition: all .25s var(--ease-back);
+}
+.proj-tech span:hover {
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 6px 16px rgba(0,0,0,.3);
+}
+
+/* ── BACK TO TOP SPIN ── */
+#backToTop:hover svg {
+  animation: topSpin .5s var(--ease-back);
+}
+@keyframes topSpin {
+  0%   { transform: rotate(0deg)   scale(1);   }
+  50%  { transform: rotate(-20deg) scale(1.2); }
+  100% { transform: rotate(0deg)   scale(1);   }
+}
+
+/* ── LOADER SCAN LINE ── */
+#loader::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon), transparent);
+  animation: loaderScan 2s linear infinite;
+}
+@keyframes loaderScan {
+  from { top: 0%; }
+  to   { top: 100%; }
+}
+
+/* ── GLASS CARD DEPTH SHADOW ── */
+.proj-card, .sp-node, .tl-card, .edu-card {
+  box-shadow:
+    0 4px 20px rgba(0,0,0,.3),
+    0 1px 0 rgba(255,255,255,.03) inset,
+    0 -1px 0 rgba(0,0,0,.2) inset;
+}
+
+/* ── CURSOR DOT TRAIL COLOR CYCLE ── */
+#cursorDot {
+  animation: dotCycle 4s linear infinite;
+}
+@keyframes dotCycle {
+  0%,100% { background: var(--neon2); box-shadow: 0 0 8px var(--neon2), 0 0 16px var(--neon); }
+  33%     { background: var(--purple); box-shadow: 0 0 8px var(--purple), 0 0 16px var(--purple); }
+  66%     { background: var(--green); box-shadow: 0 0 8px var(--green), 0 0 16px var(--green); }
+}

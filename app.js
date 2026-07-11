@@ -351,7 +351,7 @@ function animateCounter(el, target, suffix, duration) {
 
 function initCounters() {
   const counters = [
-    { selector: '.about-stat:nth-child(1) .as-n', target: 5, suffix: '+' },
+    { selector: '.about-stat:nth-child(1) .as-n', target: 9, suffix: '+' },
     { selector: '.about-stat:nth-child(2) .as-n', target: 5, suffix: '' },
     { selector: '.about-stat:nth-child(3) .as-n', target: 2, suffix: '' },
     { selector: '.about-stat:nth-child(4) .as-n', target: 2027, suffix: '' },
@@ -558,18 +558,166 @@ if (backToTopBtn) {
 }
 
 /* ══════════════════════════════════
-   CARD TILT EFFECT (subtle 3D)
+   CARD 3D TILT + MOUSE SPOTLIGHT
 ══════════════════════════════════ */
 function initTiltCards() {
   document.querySelectorAll('.proj-card, .edu-card, .sp-node').forEach(card => {
+    card.classList.add('tilt-card');
+
     card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width  - 0.5;
-      const y = (e.clientY - rect.top)  / rect.height - 0.5;
-      card.style.transform = `perspective(600px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateY(-6px)`;
+      const rect  = card.getBoundingClientRect();
+      const xPct  = (e.clientX - rect.left)  / rect.width;
+      const yPct  = (e.clientY - rect.top)   / rect.height;
+      const rotX  = -(yPct - 0.5) * 10;
+      const rotY  =  (xPct - 0.5) * 10;
+
+      card.style.transform =
+        `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-6px) scale(1.015)`;
+      card.style.transition = 'transform .1s ease, box-shadow .3s ease';
+
+      // Dynamic spotlight follow
+      const spotX = xPct * 100;
+      const spotY = yPct * 100;
+      card.style.background = card.style.background || '';
+      card.style.setProperty('--spot-x', spotX + '%');
+      card.style.setProperty('--spot-y', spotY + '%');
+
+      const glow = card.querySelector('.proj-card-glow');
+      if (glow) {
+        glow.style.opacity = '1';
+        glow.style.left = spotX + '%';
+        glow.style.top  = spotY + '%';
+        glow.style.transform = 'translate(-50%, -50%)';
+      }
     });
+
     card.addEventListener('mouseleave', () => {
       card.style.transform = '';
+      card.style.transition = 'transform .5s var(--ease), box-shadow .5s ease';
+      const glow = card.querySelector('.proj-card-glow');
+      if (glow) glow.style.opacity = '0';
+    });
+  });
+}
+
+/* ══════════════════════════════════
+   MAGNETIC BUTTON PULL EFFECT
+══════════════════════════════════ */
+function initMagneticButtons() {
+  document.querySelectorAll('.btn-primary, .btn-secondary, .nav-resume-btn').forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const rect   = btn.getBoundingClientRect();
+      const dx     = e.clientX - (rect.left + rect.width / 2);
+      const dy     = e.clientY - (rect.top  + rect.height / 2);
+      const dist   = Math.sqrt(dx * dx + dy * dy);
+      const maxR   = Math.max(rect.width, rect.height) * 0.7;
+      if (dist < maxR) {
+        const pull = (1 - dist / maxR) * 8;
+        btn.style.transform = `translateX(${dx * pull / maxR}px) translateY(${(dy * pull / maxR) - 3}px)`;
+      }
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+      btn.style.transition = 'transform .5s var(--ease-back)';
+    });
+  });
+}
+
+/* ══════════════════════════════════
+   FLOATING GEOMETRIC SHAPES
+══════════════════════════════════ */
+function injectGeoShapes() {
+  const defs = [
+    { el: 'div', section: '#about',   style: 'width:160px;height:160px;border:1px solid rgba(0,200,255,.08);border-radius:4px;top:10%;right:5%;--gr:15deg;--gr2:45deg;--gtx:30px;--gty:-20px;--gs:18s;--go:0.06;--gd:0.3s' },
+    { el: 'div', section: '#about',   style: 'width:80px;height:80px;border:1px solid rgba(168,85,247,.1);border-radius:50%;top:70%;left:3%;--gr:0deg;--gr2:180deg;--gtx:-20px;--gty:30px;--gs:12s;--go:0.07;--gd:0.6s' },
+    { el: 'div', section: '#projects',style: 'width:120px;height:120px;border:1px solid rgba(0,255,136,.06);border-radius:4px;top:5%;left:2%;--gr:20deg;--gr2:60deg;--gtx:25px;--gty:-35px;--gs:15s;--go:0.05;--gd:0.2s' },
+    { el: 'div', section: '#skills',  style: 'width:200px;height:200px;border:1px solid rgba(251,191,36,.06);border-radius:50%;bottom:5%;right:3%;--gr:0deg;--gr2:90deg;--gtx:-40px;--gty:20px;--gs:20s;--go:0.04;--gd:0.4s' },
+    { el: 'div', section: '#experience',style:'width:100px;height:100px;border:1px solid rgba(0,200,255,.07);border-radius:4px;top:15%;right:8%;--gr:30deg;--gr2:75deg;--gtx:20px;--gty:-25px;--gs:14s;--go:0.06;--gd:0.5s' },
+    { el: 'div', section: '#education',style: 'width:140px;height:140px;border:1px solid rgba(168,85,247,.06);border-radius:50%;top:60%;left:5%;--gr:0deg;--gr2:120deg;--gtx:-30px;--gty:15px;--gs:16s;--go:0.05;--gd:0.3s' },
+  ];
+  defs.forEach(d => {
+    const parent = document.querySelector(d.section);
+    if (!parent) return;
+    const el = document.createElement(d.el);
+    el.className = 'geo-shape';
+    el.style.cssText = d.style;
+    parent.style.position = parent.style.position || 'relative';
+    parent.appendChild(el);
+  });
+}
+
+/* ══════════════════════════════════
+   SECTION PARALLAX ON SCROLL
+══════════════════════════════════ */
+function initParallax() {
+  const layers = [
+    { el: document.querySelector('.hero-glow-1'), speed: 0.15 },
+    { el: document.querySelector('.hero-glow-2'), speed: 0.22 },
+    { el: document.querySelector('.hero-glow-3'), speed: 0.10 },
+  ].filter(l => l.el);
+
+  window.addEventListener('scroll', () => {
+    const sy = window.scrollY;
+    layers.forEach(l => {
+      l.el.style.transform = `translateY(${sy * l.speed}px)`;
+    });
+  }, { passive: true });
+}
+
+/* ══════════════════════════════════
+   NEURAL CANVAS MOUSE INTERACTION
+══════════════════════════════════ */
+let mouseNX = -9999, mouseNY = -9999;
+document.addEventListener('mousemove', e => {
+  mouseNX = e.clientX;
+  mouseNY = e.clientY;
+});
+
+// Patch animateNeural to avoid mouseNX/Y undefined issues
+// (nodes already repel if mouse is near — add repulsion in existing loop)
+
+/* ══════════════════════════════════
+   HERO STAGGER INDEX WIRING
+══════════════════════════════════ */
+function wireHeroStagger() {
+  const heroContent = document.querySelector('.hero-content');
+  if (!heroContent) return;
+  Array.from(heroContent.children).forEach((child, i) => {
+    child.style.setProperty('--hi', i);
+  });
+}
+
+/* ══════════════════════════════════
+   ENHANCED REVEAL OBSERVER
+   (adds reveal-scale + reveal-clip)
+══════════════════════════════════ */
+function initRevealObserver() {
+  const opts = { threshold: 0.10, rootMargin: '0px 0px -30px 0px' };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, opts);
+
+  document.querySelectorAll(
+    '.reveal-up, .reveal-left, .reveal-item, .reveal-scale, .reveal-clip'
+  ).forEach(el => observer.observe(el));
+}
+
+/* ══════════════════════════════════
+   SMOOTH HOVER GLOW TRAIL on sections
+══════════════════════════════════ */
+function initSectionGlowTrail() {
+  document.querySelectorAll('.section').forEach(sec => {
+    sec.addEventListener('mousemove', e => {
+      const rect = sec.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      sec.style.setProperty('--mx', x + 'px');
+      sec.style.setProperty('--my', y + 'px');
     });
   });
 }
@@ -587,9 +735,14 @@ window.addEventListener('DOMContentLoaded', () => {
     setLoad(75, () => {
       setLoad(100, () => {
         hideLoader();
+        wireHeroStagger();
         animateHeroIn();
         initRevealObserver();
         initTiltCards();
+        initMagneticButtons();
+        injectGeoShapes();
+        initParallax();
+        initSectionGlowTrail();
         initCounters();
         setTimeout(runTyped, 800);
       });
